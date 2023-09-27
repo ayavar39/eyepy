@@ -4,8 +4,7 @@ in this script, we have tested some functionality of the mentioned libraries
 This way, it is called main_test
 
 '''
-
-from oct_converter.readers.utilfs import load_eye_from_bin, save_bin2eye, save_eye2bin_object, save_eye2bin_file, save_eye2hdf5_file, save_eye2hdf5_object, load_eye_from_hdf5_object
+from oct_converter.readers.utilfs import load_eye_from_bin, save_bin2eye, save_eye2bin, save_eye2hdf5, load_eye_from_hdf5
 import eyepy
 
 import warnings
@@ -18,32 +17,24 @@ out_dir = 'D:/dataset/eyepy/'
 
 # 1- Loading, creating and returting a .eye object  from a .bin path 
 eye_volume1 = load_eye_from_bin('D:/dataset/heiderlberg_oct1_.bin', header_size=0, num_slices=128, width=650, height=512, num_channels=1, prototype='other')
-eye_volume1[64].plot()
+# eye_volume1[64].plot()
 
 # 2- Saving a .bin file in a .eye file 
 save_bin2eye('D:/dataset/heiderlberg_oct1_.bin', 'D:/dataset/heiderlberg_oct1_.eye', header_size=0, num_slices=128, width=650, height=512, num_channels=1, prototype='other')
 
-# 3- Saving a .eye object in a .bin file 
-save_eye2bin_object(eye_volume1, 'D:/dataset/heiderlberg_oct2_.bin')
-
-# 4- Saving a .eye file content to a .bin file
-save_eye2bin_file('D:/dataset/heiderlberg_oct1_.eye','D:/dataset/heiderlberg_oct3.bin')
+# 3- Saving a .eye file content to a .bin file
+save_eye2bin('D:/dataset/heiderlberg_oct1_.eye','D:/dataset/heiderlberg_oct2.bin')
 
 # 
-eye_volume2 = load_eye_from_bin('D:/dataset/heiderlberg_oct2_.bin', header_size=0, num_slices=128, width=650, height=512, num_channels=1, prototype='other')
-eye_volume3 = load_eye_from_bin('D:/dataset/heiderlberg_oct3.bin', header_size=0, num_slices=128, width=650, height=512, num_channels=1, prototype='other')
-eye_volume2[64].plot()
-eye_volume3[64].plot()
+eye_volume2 = load_eye_from_bin('D:/dataset/heiderlberg_oct2_structure.bin', header_size=0, num_slices=128, width=650, height=512, num_channels=1, prototype='other')
 
 
-# 5- Saving a .eye object to a .hdf5 file
-save_eye2hdf5_file('D:/dataset/heiderlberg_oct1_.eye', 'D:/dataset/heiderlberg_oct3.hdf5')
+# 4- Saving a .eye object to a .hdf5 file
+save_eye2hdf5('D:/dataset/heiderlberg_oct1_.eye', 'D:/dataset/heiderlberg_oct2.hdf5')
 
-# 6- Saving a .eye object to a .hdf5 file
-save_eye2hdf5_object(eye_volume1, 'D:/dataset/heiderlberg_oct2_.hdf5')
 
-# 7- Loading a .eye object from a .hdf5 file
-eye_vol2 = load_eye_from_hdf5_object('D:/dataset/heiderlberg_oct2_.hdf5')
+# 5- Loading a .eye object from a .hdf5 file
+eye_vol2 = load_eye_from_hdf5('D:/dataset/heiderlberg_oct2.hdf5')
 
 
 # Loading .eye file 
@@ -75,4 +66,5 @@ temp.save(eyefile_path1)
 
 # end = time.time()
 # print(end - start)
+
 
