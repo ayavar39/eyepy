@@ -6,7 +6,7 @@ import matplotlib.colors as mcolors
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
-
+import os
 from eyepy import config
 from eyepy.core.annotations import EyeBscanLayerAnnotation
 from eyepy.core.eyemeta import EyeBscanMeta
@@ -87,7 +87,9 @@ class EyeBscan:
         region: tuple[slice, slice] = np.s_[:, :],
         scalebar: Union[bool, str] = 'botleft',
         scalebar_kwargs: Optional[dict[str, Any]] = None,
-        watermark: bool = True,
+        watermark: bool = False,
+        dpi: int = 300,
+        output_dir: str = os.getcwd(),
     ) -> None:
         """Plot B-scan.
 
@@ -192,12 +194,7 @@ class EyeBscan:
             region_height = region[0].stop - region[0].start
             layer_data[layer_data > region_height] = region_height
 
-            ax.plot(
-                layer_data,
-                color='#' + color,
-                label=layer,
-                **layer_kwargs,
-            )
+            ax.plot(layer_data, color='#' + color, label=layer,**layer_kwargs,)
 
         # Make sure tick labels match the image region
         y_start = region[0].start if region[0].start is not None else 0
@@ -257,8 +254,11 @@ class EyeBscan:
             plot_scalebar(ax=ax, **scalebar_kwargs)
 
         if watermark:
-            plot_watermark(ax)
-
+            plot_watermark(ax)        
+        
+        plt.savefig(output_dir+'bscan_'+str(self.index)+'.png', dpi=dpi)  # Adjust the filename as needed
+        self.volume._bscans = {} # to avoid plotting problems
+    
     @property
     def size_x(self):
         """Size of the B-scan in x direction."""

@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 from collections import defaultdict
 from collections.abc import Callable
 import json
@@ -10,14 +9,12 @@ import tempfile
 from typing import Optional, overload, SupportsIndex, Union
 import warnings
 import zipfile
-
 from matplotlib import patches
 import matplotlib.pyplot as plt
 from numpy import typing as npt
 import numpy as np
 from skimage import transform
 from skimage.transform._geometric import GeometricTransform
-
 from eyepy import config
 from eyepy.core.annotations import EyeVolumeLayerAnnotation
 from eyepy.core.annotations import EyeVolumePixelAnnotation
@@ -29,7 +26,6 @@ from eyepy.core.eyemeta import EyeVolumeMeta
 from eyepy.core.utils import intensity_transforms
 
 logger = logging.getLogger('eyepy.core.eyevolume')
-
 
 class EyeVolume:
     """"""
@@ -116,7 +112,7 @@ class EyeVolume:
                 layers_path.mkdir(exist_ok=True, parents=True)
                 np.save(
                     layers_path / 'layer_heights.npy',
-                    np.stack([l.data for l in self._layers]),
+                    np.stack([np.flip(l.data,axis=0) for l in self._layers]),
                 )
                 with open(layers_path / 'meta.json', 'w') as meta_file:
                     json.dump([l.meta for l in self._layers], meta_file)
@@ -181,6 +177,7 @@ class EyeVolume:
             layers_path = tmpdirname / 'annotations' / 'layers'
             if layers_path.exists():
                 layer_annotations = np.load(layers_path / 'layer_heights.npy')
+                layer_annotations = np.flip(layer_annotations, axis=1) ###############33
                 with open(layers_path / 'meta.json', 'r') as meta_file:
                     layers_meta = json.load(meta_file)
 
@@ -268,6 +265,7 @@ class EyeVolume:
             ),
         )
         return localizer
+    
 
     def _estimate_transform(self) -> transform.AffineTransform:
         # Compute a transform to map a 2D projection of the volume to a square

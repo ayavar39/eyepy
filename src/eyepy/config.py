@@ -3,7 +3,7 @@ from collections import defaultdict
 # Plotting config
 
 # Line Style for Layers in B-Scan
-layer_kwargs = {'linewidth': 1, 'linestyle': '-'}
+layer_kwargs = {'linewidth': 0.5, 'linestyle': '-'}
 area_kwargs = {'alpha': 0.5}
 ascan_kwargs = {'alpha': 0.5}
 
@@ -26,7 +26,7 @@ _layer_colors = {
     'GCL': '34AF84',
     'RNFL': '3BA3EC',
     'NFL': '3BA3EC',
-    'ILM': 'F668C2',
+    'ILM': 'FFFF00', # FF0000
 }
 
 layer_colors = defaultdict(lambda: 'FF0000', **_layer_colors)
