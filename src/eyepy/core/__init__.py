@@ -8,4 +8,5 @@ from .eyemeta import EyeBscanMeta
 from .eyemeta import EyeEnfaceMeta
 from .eyemeta import EyeVolumeMeta
 from .eyevolume import EyeVolume
+from .eyevolume import KnotEyeVolume
 from .utils import drusen

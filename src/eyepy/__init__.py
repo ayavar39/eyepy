@@ -32,7 +32,7 @@ from eyepy.core import EyeVolume
 from eyepy.core import EyeVolumeLayerAnnotation
 from eyepy.core import EyeVolumeMeta
 from eyepy.core import EyeVolumePixelAnnotation
-from eyepy.core.KnotEyeVolume import KnotEyeVolume
+from eyepy.core import KnotEyeVolume.KnotEyeVolume
 from eyepy.io import import_bscan_folder
 from eyepy.io import import_duke_mat
 from eyepy.io import import_heyex_e2e

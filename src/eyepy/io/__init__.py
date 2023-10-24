@@ -8,6 +8,7 @@ from oct_converter.readers import FDA
 
 from eyepy import EyeBscanMeta
 from eyepy import EyeVolume
+from eyepy import KnotEyeVolume
 from eyepy import EyeVolumeMeta
 from eyepy.core.eyeenface import EyeEnface
 from eyepy.core.eyemeta import EyeEnfaceMeta
