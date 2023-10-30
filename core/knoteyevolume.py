@@ -7,8 +7,15 @@ from numpy import typing as npt
 from eyepy.core.eyeenface import EyeEnface
 from skimage.transform._geometric import GeometricTransform
 from PIL import Image, ImageEnhance
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor
+from functools import partial
+import cupy as cp
+from concurrent.futures import ThreadPoolExecutor
+from joblib import Parallel, delayed
 from eyepy.core.eyemeta import EyeVolumeMeta
-import copy
+import concurrent.futures
+import cv2
 logger = logging.getLogger('eyepy.core.knoteyevolume')
 
 # These are 3 functions for creating knot_points
@@ -77,6 +84,10 @@ def estimate_control_points(knot_points, cp_distance):
 
     return control_points
 
+# 4 
+
+
+
 
 # a self-defined class with its parent featrues beside having new methods
 class KnotEyeVolume(EyeVolume):
@@ -94,7 +105,56 @@ class KnotEyeVolume(EyeVolume):
         """Clears the processed data cache."""
         self._data = None
 
-    def increase_brightness(self, step=0.05):
+    # ********************************
+    # Eyelab features 
+    ''' GPU Versions '''
+    def increase_brightness(self, step=0.2):
+        factor = 1 + step
+        for i in range(len(self._raw_data)):
+            cupy_image = cp.asarray(self._raw_data[i])
+            cupy_image = cupy_image * factor
+            cupy_image = cp.clip(cupy_image, 0, 255).astype(cp.uint8)
+            self._raw_data[i] = cupy_image.get()
+
+        self._clear_data_cache()
+        return self
+
+    def decrease_brightness(self, step=0.2):
+        factor = 1 - step
+        for i in range(len(self._raw_data)):
+            cupy_image = cp.asarray(self._raw_data[i])
+            cupy_image = cupy_image * factor
+            cupy_image = cp.clip(cupy_image, 0, 255).astype(cp.uint8)
+            self._raw_data[i] = cupy_image.get()
+
+        self._clear_data_cache()
+        return self
+
+    ''' CPU Versions '''
+    def increase_brightness_cpu(self, step=0.1):
+        factor = 1 + step
+        for i in range(len(self._raw_data)): 
+            raw_data_copy = self._raw_data[i].copy()
+            raw_data_copy = np.clip(raw_data_copy * factor, 0, 255).astype(np.uint8)
+            self._raw_data[i] = raw_data_copy
+
+        self._clear_data_cache()
+        return self
+
+    def decrease_brightness_cpu(self, step=0.1):
+        factor = 1 - step
+        for i in range(len(self._raw_data)): 
+            raw_data_copy = self._raw_data[i].copy()
+            raw_data_copy = np.clip(raw_data_copy * factor, 0, 255).astype(np.uint8)
+            self._raw_data[i] = raw_data_copy
+
+        self._clear_data_cache()
+        return self
+            
+    '''
+    The older version of the function for increasing and decreasing brightness
+    # 1- Increase brightness 
+    def increase_brightness(self, step=0.1):
         factor = 1 + step
         for i in range(0, len(self._raw_data)):           
             pil_image = Image.fromarray(self._raw_data[i]).convert("L") 
@@ -105,19 +165,43 @@ class KnotEyeVolume(EyeVolume):
         self._clear_data_cache()
         return self
     
-    def decrease_brightness(self, step=0.05):
-        images = copy.deepcopy(self._raw_data)
+    # 2- decrease brightness 
+    def decrease_brightness(self, step=0.1):
         factor = 1 - step
-        for idx, image in enumerate(images):           
-            pil_image = Image.fromarray(image).convert("L") 
+        for i in range(0, len(self._raw_data)):           
+            pil_image = Image.fromarray(self._raw_data[i]).convert("L") 
             enhancer = ImageEnhance.Brightness(pil_image)
             adjusted_image = enhancer.enhance(factor)
-            adjusted_image = np.array(adjusted_image)
-            images[idx] = adjusted_image
+            self._raw_data[i] = np.array(adjusted_image)
 
-        self._raw_data = copy.deepcopy(images)
         self._clear_data_cache()
         return self
+    '''
+
+    # 3 increase contrast
+    def increase_contrast(self, step=0.1):
+        factor = 1 + step
+        for i in range(0, len(self._raw_data)):           
+            pil_image = Image.fromarray(self._raw_data[i]).convert("L") 
+            enhancer = ImageEnhance.Contrast(pil_image)
+            adjusted_image = enhancer.enhance(factor)
+            self._raw_data[i] = np.array(adjusted_image)
+
+        self._clear_data_cache()
+        return self
+
+    # 4 decrease contrast 
+    def decrease_contrast(self, step=0.05):
+        factor = 1 - step
+        for i in range(0, len(self._raw_data)):           
+            pil_image = Image.fromarray(self._raw_data[i]).convert("L") 
+            enhancer = ImageEnhance.Contrast(pil_image)
+            adjusted_image = enhancer.enhance(factor)
+            self._raw_data[i] = np.array(adjusted_image)
+
+        self._clear_data_cache()
+        return self
+    # ********************************
 
     def __reduce__(self):
         # The __reduce__ method should return a tuple containing two elements:
